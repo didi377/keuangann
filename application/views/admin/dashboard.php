@@ -4,32 +4,81 @@
     <meta charset="UTF-8">
     <title>Dashboard Admin - Keuangan</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            background-color:rgb(110, 80, 80);
+        }
+        .card {
+            border: none;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            border-radius: 12px;
+        }
+        .card-header {
+            background-color:rgb(1, 254, 241);
+            border-bottom: 1px solid #e0e0e0;
+        }
+    </style>
 </head>
 <body>
 
 <div class="container py-4">
-    <h3 class="mb-4">📋 Dashboard Admin</h3>
-    <a href="<?php echo site_url('auth/logout'); ?>" class="btn btn-outline-danger btn-sm">Logout</a>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="fw-bold">📋 Dashboard Admin</h3>
+        <a href="<?= site_url('auth/logout'); ?>" class="btn btn-outline-warning btn-sm">Logout</a>
+    </div>
+
+    <!-- Ringkasan Statistik -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card text-white bg-primary">
+                <div class="card-body">
+                    <h5 class="card-title">👥 Jumlah User</h5>
+                    <p class="fs-4 mb-0"><?= count($users); ?> User</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card text-white bg-success">
+                <div class="card-body">
+                    <h5 class="card-title">💰 Total Seluruh Transaksi</h5>
+                    <p class="fs-4 mb-0">
+                        Rp <?= number_format(array_sum(array_map(fn($u) => array_sum(array_column($u->transaksi, 'jumlah')), $users)), 0, ',', '.'); ?>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Diagram Batang -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">📊 Grafik Transaksi per User</h5>
+            <canvas id="barChart" height="100"></canvas>
+        </div>
+    </div>
 
     <!-- Tombol tambah user -->
-    <button class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#modalTambahUser">+ Tambah User</button>
+    <div class="mb-3">
+        <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalTambahUser">+ Tambah User</button>
+    </div>
 
     <!-- Daftar User -->
     <?php foreach($users as $user): ?>
     <div class="card mb-4">
         <div class="card-header d-flex justify-content-between align-items-center">
-            <strong><?= $user->username; ?> (<?= $user->role; ?>)</strong>
+            <strong><?= $user->username; ?> <span class="badge bg-secondary"><?= ucfirst($user->role); ?></span></strong>
             <div>
-                <button class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#modalEditUser<?= $user->id; ?>">✏️</button>
-                <a href="<?= site_url('admin/hapus_user/'.$user->id); ?>" class="btn btn-sm btn-danger" onclick="return confirm('Hapus user ini?')">🗑️</a>
+                <button class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#modalEditUser<?= $user->id; ?>">✏️ Edit</button>
+                <a href="<?= site_url('admin/hapus_user/'.$user->id); ?>" class="btn btn-sm btn-danger" onclick="return confirm('Hapus user ini?')">🗑️ Hapus</a>
             </div>
         </div>
         <div class="card-body">
-            <h6>Transaksi:</h6>
+            <h6 class="fw-bold">Transaksi:</h6>
             <?php if (!empty($user->transaksi)): ?>
             <div class="table-responsive">
                 <table class="table table-sm table-bordered">
-                    <thead>
+                    <thead class="table-light">
                         <tr>
                             <th>No</th>
                             <th>Tanggal</th>
@@ -90,7 +139,6 @@
             </form>
         </div>
     </div>
-
     <?php endforeach; ?>
 
     <!-- Modal Tambah User -->
@@ -129,6 +177,52 @@
 
 </div>
 
+<script>
+    const users = <?= json_encode($users); ?>;
+    const labels = users.map(user => user.username);
+    const data = users.map(user =>
+        user.transaksi.reduce((sum, trx) => sum + trx.jumlah, 0)
+    );
+
+    const colors = [
+        'rgba(255, 99, 132, 0.6)', 'rgba(54, 162, 235, 0.6)',
+        'rgba(255, 206, 86, 0.6)', 'rgba(75, 192, 192, 0.6)',
+        'rgba(153, 102, 255, 0.6)', 'rgba(255, 159, 64, 0.6)',
+        'rgba(255, 140, 0, 0.6)',  'rgba(100, 255, 218, 0.6)'
+    ];
+
+    const ctx = document.getElementById('barChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Total Transaksi',
+                data: data,
+                backgroundColor: colors.slice(0, labels.length),
+                borderColor: colors.map(c => c.replace('0.6', '1')).slice(0, labels.length),
+                borderWidth: 1
+            }]
+        },
+        options: {
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: ctx => 'Rp ' + ctx.parsed.y.toLocaleString('id-ID')
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: val => 'Rp ' + val.toLocaleString('id-ID')
+                    }
+                }
+            }
+        }
+    });
+</script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

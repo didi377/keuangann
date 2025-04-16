@@ -6,11 +6,11 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
-            background-color: #f1f2f7;
+            background-color:rgb(49, 239, 175);
             font-family: 'Segoe UI', sans-serif;
         }
         .navbar {
-            background-color: #ffffff;
+            background-color:rgb(122, 175, 158);
             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
         .navbar-brand {
@@ -42,7 +42,7 @@
             border-radius: 30px;
         }
         .table thead {
-            background-color: #e9ecef;
+            background-color:rgb(105, 168, 231);
         }
         .btn-action .btn {
             padding: 4px 8px;
@@ -61,51 +61,51 @@
 
 <div class="container">
     <!-- Tabel Transaksi -->
-    <div class="card p-3 border-0 shadow-sm mb-4">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h5 class="mb-0">📋 Riwayat Transaksi</h5>
-            <a href="<?php echo site_url('keuangan/tambah'); ?>" class="btn btn-primary btn-sm btn-add">+ Tambah</a>
-        </div>
-        <div class="table-responsive">
-            <table class="table table-bordered table-hover align-middle">
-                <thead>
-                    <tr>
-                        <th>No</th>
-                        <th>Tanggal</th>
-                        <th>Keterangan</th>
-                        <th>Jenis</th>
-                        <th>Jumlah (Rp)</th>
-                        <th>Aksi</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php if (!empty($transaksi)): ?>
-                        <?php $no = 1; foreach ($transaksi as $item): ?>
-                            <tr>
-                                <td><?php echo $no++; ?></td>
-                                <td><?php echo date('d M Y', strtotime($item->tanggal)); ?></td>
-                                <td><?php echo htmlspecialchars($item->keterangan); ?></td>
-                                <td>
-                                    <span class="badge bg-<?php echo ($item->jenis == 'Pemasukan') ? 'success' : 'danger'; ?>">
-                                        <?php echo $item->jenis; ?>
-                                    </span>
-                                </td>
-                                <td><?php echo number_format($item->jumlah, 0, ',', '.'); ?></td>
-                                <td class="btn-action">
-                                    <a href="<?php echo site_url('keuangan/edit/'.$item->id); ?>" class="btn btn-outline-warning btn-sm">✏️</a>
-                                    <a href="<?php echo site_url('keuangan/hapus/'.$item->id); ?>" class="btn btn-outline-danger btn-sm" onclick="return confirm('Yakin mau hapus?')">🗑️</a>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    <?php else: ?>
+        <div class="card p-3 border-0 shadow-sm mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="mb-0">📋 Riwayat Transaksi</h5>
+                <a href="<?php echo site_url('keuangan/tambah'); ?>" class="btn btn-primary btn-sm btn-add">+ Tambah</a>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover align-middle">
+                    <thead>
                         <tr>
-                            <td colspan="6" class="text-center text-muted">Belum ada transaksi.</td>
+                            <th>No</th>
+                            <th>Tanggal</th>
+                            <th>Keterangan</th>
+                            <th>Jenis</th>
+                            <th>Jumlah (Rp)</th>
+                            <th>Aksi</th>
                         </tr>
-                    <?php endif; ?>
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        <?php if (!empty($transaksi)): ?>
+                            <?php $no = 1; foreach ($transaksi as $item): ?>
+                                <tr>
+                                    <td><?php echo $no++; ?></td>
+                                    <td><?php echo date('d M Y', strtotime($item->tanggal)); ?></td>
+                                    <td><?php echo htmlspecialchars($item->keterangan); ?></td>
+                                    <td>
+                                        <span class="badge bg-<?php echo ($item->jenis == 'Pemasukan') ? 'success' : 'danger'; ?>">
+                                            <?php echo $item->jenis; ?>
+                                        </span>
+                                    </td>
+                                    <td><?php echo number_format($item->jumlah, 0, ',', '.'); ?></td>
+                                    <td class="btn-action">
+                                        <a href="<?php echo site_url('keuangan/edit/'.$item->id); ?>" class="btn btn-outline-warning btn-sm">✏️</a>
+                                        <a href="<?php echo site_url('keuangan/hapus/'.$item->id); ?>" class="btn btn-outline-danger btn-sm" onclick="return confirm('Yakin mau hapus?')">🗑️</a>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <tr>
+                                <td colspan="6" class="text-center text-muted">Belum ada transaksi.</td>
+                            </tr>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
+            </div>
         </div>
-    </div>
 
     <!-- Ringkasan di bawah -->
     <div class="row text-center mb-5">
